@@ -2,23 +2,52 @@
 用于处理文件名为深圳证券交易所Binary交易数据接口规范（VerNumber）.pdf的文件
 """
 import os
+import re
 from collections import defaultdict
 
 import camelot
 import pandas as pd
 import pdfplumber
+import requests
 
 from log import logger
 from scripts.config import RES_DIR_PATH, OUTPUT_DIR_PATH
+
+FIRST_TITLE_FLAG_LIST = ['Time', '域名', '应用标识 ApplID', '应用标识\nApplID',
+                         '委托申报类型', '平台', '消息类型', '委托类型', '业务',
+                         'MarketSegmentID', 'ApplID']
 
 FILE_NAME = '深圳证券交易所Binary交易数据接口规范（Ver1.29）.pdf'
 OUTPUT_EXCEL_FILE_NAME = '深圳证券交易所Binary交易数据接口规范（Ver1.29）.xlsx'
 FILE_PATH = os.path.sep.join([RES_DIR_PATH, FILE_NAME])
 OUTPUT_EXCEL_FILE_PATH = os.path.sep.join([OUTPUT_DIR_PATH, OUTPUT_EXCEL_FILE_NAME])
 
-FIRST_TITLE_FLAG_LIST = ['Time', '域名', '应用标识 ApplID', '应用标识\nApplID',
-                         '委托申报类型', '平台', '消息类型', '委托类型', '业务',
-                         'MarketSegmentID', 'ApplID']
+
+def check_sz_ex_interface_file():
+    """获取深交所接口文件更新
+    """
+    url = 'http://www.szse.cn/marketServices/technicalservice/interface/'
+    res = requests.get(url)
+    res.encoding = "utf-8"
+    html = res.text
+
+    res = re.search(r"curTitle ='深圳证券交易所Binary交易数据接口规范（Ver(.*)）\';", html)
+    try:
+        cur_version = res[1]
+
+        if cur_version:
+            pdf_file_name = re.search(
+                r"var curHref = '\./(.*).pdf\';\s* //var curTitle = '深圳证券交易所Binary交易数据接口规范",
+                html)[1]
+            pdf_file_url = f'{url}{pdf_file_name}.pdf'
+            res = requests.get(pdf_file_url)
+            with open(FILE_PATH, 'wb') as f:
+                f.write(res.content)
+            extract_table_from_pdf(FILE_PATH)
+
+    except Exception:
+        import traceback
+        logger.warning(traceback.format_exc())
 
 
 def extract_table_from_pdf(file_path):
@@ -193,4 +222,5 @@ def _find_start_end_page_index(pages):
 
 
 if __name__ == '__main__':
-    extract_table_from_pdf(FILE_PATH)
+    # extract_table_from_pdf(FILE_PATH)
+    check_sz_ex_interface_file()
