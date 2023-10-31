@@ -20,7 +20,7 @@ FIRST_LINE_TITLE_FLAG_LIST = ['字段名称', '文件', '序号', '类别名称'
 def check_sz_ex_trade_data_interface_file():
     url = 'http://www.szse.cn/marketServices/technicalservice/interface/'
     headers = {
-        'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5'
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5'
     }
     res = requests.get(url, headers=headers)
     res.encoding = "utf-8"
@@ -94,7 +94,3 @@ def dump_table_to_excel(table_list, output_file_path):
             print(e)
         count += 1
     writer.close()
-
-
-if __name__ == '__main__':
-    check_sz_ex_trade_data_interface_file()

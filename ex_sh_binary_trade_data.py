@@ -18,7 +18,7 @@ FIRST_LINE_TITLE_FLAG_LIST = [
 ]
 
 
-def check_sh_ex_trade_data_interface_file():
+def check_sh_ex_binary_trade_data_interface_file():
     url_root = 'http://www.sse.com.cn'
     url = 'http://www.sse.com.cn/services/tradingtech/data/'
     headers = {
@@ -117,7 +117,3 @@ def dump_table_to_excel(table_list, output_file_path):
             logger.warning(e)
         count += 1
     writer.close()
-
-
-if __name__ == '__main__':
-    check_sh_ex_trade_data_interface_file()

@@ -18,7 +18,7 @@ FIRST_TITLE_FLAG_LIST = ['Time', '域名', '应用标识 ApplID', '应用标识\
                          'MarketSegmentID', 'ApplID']
 
 
-def check_sz_ex_interface_file():
+def check_sz_ex_binary_trade_interface_file():
     """获取深交所接口文件更新
     """
     url = 'http://www.szse.cn/marketServices/technicalservice/interface/'
@@ -217,7 +217,3 @@ def _find_start_end_page_index(pages):
             start_page_i = i + 1
             break
     return start_page_i, end_page_i
-
-
-if __name__ == '__main__':
-    check_sz_ex_interface_file()

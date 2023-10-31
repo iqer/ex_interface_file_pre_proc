@@ -120,7 +120,3 @@ def dump_table_to_excel(table_list, output_file_path):
             logger.warning(e)
         count += 1
     writer.close()
-
-
-if __name__ == '__main__':
-    check_sh_ex_trade_data_interface_file()
