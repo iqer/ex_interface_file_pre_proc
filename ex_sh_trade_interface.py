@@ -1,5 +1,5 @@
 """
-用于处理深圳证券交易所交易网关Binary接口规格说明书（竞价平台）
+用于处理上交所易所撮合规范文件
 """
 import os
 import time
@@ -14,7 +14,7 @@ from ex_sz_binary_trade_data import _load_pdf_pages, _find_start_end_page_index
 from log import logger
 
 FIRST_LINE_TITLE_FLAG_LIST = [
-    '名词', '名称', '字段名', '业务', '状态码/错误码', 'MsgType=3\n2', '信用交易'
+    '序号', '序号  字段名', '序 号', '委托类型', '业务分类', '类型', '名称', 'ID', '字段号', '销售人', '返回代码'
 ]
 
 
@@ -36,7 +36,7 @@ def check_sh_ex_trade_data_interface_file():
     a_list = notice_item.select("a")
     file_item = None
     for a in a_list:
-        if 'IS122_上海证券交易所交易网关Binary接口规格说明书（竞价平台）' in a.text:
+        if 'IS101_上海证券交易所竞价撮合平台市场参与者接口规格说明书' in a.text:
             file_item = a
             break
     if not file_item:
@@ -48,7 +48,8 @@ def check_sh_ex_trade_data_interface_file():
     pdf_file_path = os.path.sep.join([RES_DIR_PATH, f"{file_item.attrs['href'].split('/')[-1]}"])
     with open(pdf_file_path, 'wb') as f:
         f.write(res.content)
-    output_file_path = os.path.sep.join([OUTPUT_DIR_PATH, 'IS122_上海证券交易所交易网关Binary接口规格说明书.xlsx'])
+    output_file_path = os.path.sep.join(
+        [OUTPUT_DIR_PATH, 'IS101_上海证券交易所竞价撮合平台市场参与者接口规格说明书.xlsx'])
     extract_table_from_pdf(pdf_file_path, output_file_path)
 
 
@@ -72,22 +73,22 @@ def find_table_on_page(input_file_path, start_page_i, end_page_i):
         tables = camelot.read_pdf(input_file_path, pages=f'{page_i}')
         if len(tables) == 0:
             continue
-        if tables[0].data == [[''], [''], ['']]:
-            continue
 
         for table in tables:
-
             table = table.data
-            if table[0][
-                0] == '技术服务 QQ 群：\n298643611\n技术服务电话：\n4009003600（8:00-20:00）\n电子邮件：\ntech_support@sse.com.cn\n技术服务微信公众号：SSE-TechService':
-                break
             first_line = table[0]
-            first_title = first_line[0]
+            if '接口' in first_line[0] or '信息' in first_line[0] or 'txt' in first_line[0] or 'TXT' in first_line[0]:
+                second_line = table[1]
+                if second_line[0] in FIRST_LINE_TITLE_FLAG_LIST:
+                    table = table[1:]
+                    first_line = table[0]
+                else:
+                    continue
             if not cur_table:
                 cur_table.extend(table)
                 continue
             else:
-                if first_title in FIRST_LINE_TITLE_FLAG_LIST:
+                if first_line[0] in FIRST_LINE_TITLE_FLAG_LIST:
                     table_list.append(cur_table)
                     cur_table = []
                     cur_table.extend(table)
@@ -95,8 +96,10 @@ def find_table_on_page(input_file_path, start_page_i, end_page_i):
                 else:
                     cur_table.extend(table)
                     continue
+
     if cur_table:
         table_list.append(cur_table)
+
     return table_list
 
 
