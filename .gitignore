@@ -5,3 +5,5 @@ venv/
 *.pyc
 *.pdf
 *.xlsx
+*.ipynb
+*.json
