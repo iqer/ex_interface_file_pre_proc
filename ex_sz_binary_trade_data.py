@@ -10,17 +10,12 @@ import pandas as pd
 import pdfplumber
 import requests
 
-from log import logger
 from config import RES_DIR_PATH, OUTPUT_DIR_PATH
+from log import logger
 
 FIRST_TITLE_FLAG_LIST = ['Time', '域名', '应用标识 ApplID', '应用标识\nApplID',
                          '委托申报类型', '平台', '消息类型', '委托类型', '业务',
                          'MarketSegmentID', 'ApplID']
-
-FILE_NAME = '深圳证券交易所Binary交易数据接口规范（Ver1.29）.pdf'
-OUTPUT_EXCEL_FILE_NAME = '深圳证券交易所Binary交易数据接口规范（Ver1.29）.xlsx'
-FILE_PATH = os.path.sep.join([RES_DIR_PATH, FILE_NAME])
-OUTPUT_EXCEL_FILE_PATH = os.path.sep.join([OUTPUT_DIR_PATH, OUTPUT_EXCEL_FILE_NAME])
 
 
 def check_sz_ex_interface_file():
@@ -41,21 +36,24 @@ def check_sz_ex_interface_file():
                 html)[1]
             pdf_file_url = f'{url}{pdf_file_name}.pdf'
             res = requests.get(pdf_file_url)
-            with open(FILE_PATH, 'wb') as f:
+            pdf_file_path = os.path.sep.join([RES_DIR_PATH, f'{pdf_file_name}.pdf'])
+            with open(pdf_file_path, 'wb') as f:
                 f.write(res.content)
-            extract_table_from_pdf(FILE_PATH)
+            output_file_path = os.path.sep.join([OUTPUT_DIR_PATH, '深圳证券交易所Binary交易数据接口规范.xlsx'])
+            extract_table_from_pdf(pdf_file_path, output_file_path)
 
     except Exception:
         import traceback
         logger.warning(traceback.format_exc())
 
 
-def extract_table_from_pdf(file_path):
-    pages = _load_pdf_pages(file_path)
+def extract_table_from_pdf(input_file_path, output_file_path):
+    pages = _load_pdf_pages(input_file_path)
     start_page_i, end_page_i = _find_start_end_page_index(pages)
-    page_title_data_map = find_table_on_page(start_page_i, end_page_i)
-    dump_table_to_excel(page_title_data_map)
-    logger.info(f'完成对文件: {FILE_NAME} -的提取')
+    page_title_data_map = find_table_on_page(input_file_path, start_page_i, end_page_i)
+    dump_table_to_excel(page_title_data_map, output_file_path)
+    file_name = os.path.split(output_file_path)[1]
+    logger.info(f'完成对文件: {file_name} -的提取')
 
 
 def _load_pdf_pages(file_path):
@@ -64,8 +62,8 @@ def _load_pdf_pages(file_path):
     return pages
 
 
-def dump_table_to_excel(page_title_data_map):
-    writer = pd.ExcelWriter(OUTPUT_EXCEL_FILE_PATH)
+def dump_table_to_excel(page_title_data_map, output_file_path):
+    writer = pd.ExcelWriter(output_file_path)
 
     count = 0
     for i, tables in page_title_data_map.items():
@@ -118,7 +116,7 @@ def to_excel_autowidth_and_border(writer, df, sheetname, startrow, startcol):
         last_row,
         last_col - 1,
         options={"type": "formula", "criteria": "True", "format": formater},
-        )
+    )
 
 
 def remove_arrow_table(table):
@@ -129,12 +127,12 @@ def remove_arrow_table(table):
     return new_table
 
 
-def find_table_on_page(start_page_i, end_page_i):
+def find_table_on_page(file_path, start_page_i, end_page_i):
     page_title_data_map = defaultdict(list)
     cur_table_start_page = None
     cur_table = []
     for page_i in range(start_page_i, end_page_i + 1):
-        tables = camelot.read_pdf(FILE_PATH, pages=f'{page_i}')
+        tables = camelot.read_pdf(file_path, pages=f'{page_i}')
 
         # 过滤读取的脏数据
         if len(tables) == 1 and tables[0].data == [[''], [''], [''], ['']]:
@@ -222,5 +220,4 @@ def _find_start_end_page_index(pages):
 
 
 if __name__ == '__main__':
-    # extract_table_from_pdf(FILE_PATH)
     check_sz_ex_interface_file()
