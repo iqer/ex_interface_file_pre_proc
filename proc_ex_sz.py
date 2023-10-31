@@ -11,7 +11,7 @@ import pdfplumber
 import requests
 
 from log import logger
-from scripts.config import RES_DIR_PATH, OUTPUT_DIR_PATH
+from config import RES_DIR_PATH, OUTPUT_DIR_PATH
 
 FIRST_TITLE_FLAG_LIST = ['Time', '域名', '应用标识 ApplID', '应用标识\nApplID',
                          '委托申报类型', '平台', '消息类型', '委托类型', '业务',
