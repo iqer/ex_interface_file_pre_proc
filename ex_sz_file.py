@@ -118,7 +118,7 @@ def to_excel_autowidth_and_border(writer, df, sheetname, startrow, startcol):
         last_row,
         last_col - 1,
         options={"type": "formula", "criteria": "True", "format": formater},
-    )
+        )
 
 
 def remove_arrow_table(table):
