@@ -12,12 +12,18 @@ job_list = [
     check_sh_ex_binary_trade_data_interface_file,
 ]
 
-p_list = []
 
-for job in job_list:
-    p = Process(target=job)
-    p.start()
-    p_list.append(p)
+def main():
+    p_list = []
 
-for p in p_list:
-    p.join()
+    for job in job_list:
+        p = Process(target=job)
+        p.start()
+        p_list.append(p)
+
+    for p in p_list:
+        p.join()
+
+
+if __name__ == '__main__':
+    main()

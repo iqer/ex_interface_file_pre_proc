@@ -8,4 +8,4 @@ COPY .  /app/
 WORKDIR /app/
 RUN pip3 install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple &&  \
     pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-CMD python3 ex_sz_file.py
+CMD python3 main.py
