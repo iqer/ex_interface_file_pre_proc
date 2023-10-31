@@ -1,0 +1,5 @@
+from ex_sz_binary_trade_data import check_sz_ex_interface_file
+from ex_sz_trade_data import check_sz_ex_trade_data_interface_file
+
+check_sz_ex_interface_file()
+check_sz_ex_trade_data_interface_file()
